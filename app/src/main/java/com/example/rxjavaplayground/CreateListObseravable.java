@@ -3,17 +3,18 @@ package com.example.rxjavaplayground;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.ObservableEmitter;
-import io.reactivex.rxjava3.core.ObservableOnSubscribe;
-import io.reactivex.rxjava3.core.Observer;
-import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 
 public class CreateListObseravable extends AppCompatActivity {
 
@@ -28,7 +29,7 @@ public class CreateListObseravable extends AppCompatActivity {
 
         Observable<Task> taskObservable = Observable.create(new ObservableOnSubscribe<Task>() {
             @Override
-            public void subscribe(@NonNull ObservableEmitter<Task> emitter) throws Throwable {
+            public void subscribe(@NonNull ObservableEmitter<Task> emitter){
 
 
                 for (Task task:

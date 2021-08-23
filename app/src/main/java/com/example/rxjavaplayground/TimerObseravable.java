@@ -3,18 +3,19 @@ package com.example.rxjavaplayground;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Observer;
-import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.functions.Predicate;
-import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Predicate;
+import io.reactivex.schedulers.Schedulers;
+
 
 public class TimerObseravable extends AppCompatActivity {
 
@@ -33,7 +34,7 @@ public class TimerObseravable extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .takeWhile(new Predicate<Long>() {
                     @Override
-                    public boolean test(Long aLong) throws Throwable {
+                    public boolean test(Long aLong) {
                         return aLong<=5;
                     }
                 })

@@ -1,24 +1,30 @@
 package com.example.rxjavaplayground;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
 import android.util.Log;
 
+import java.io.IOException;
 import java.sql.Time;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.ObservableEmitter;
-import io.reactivex.rxjava3.core.ObservableOnSubscribe;
-import io.reactivex.rxjava3.core.Observer;
-import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.functions.Function;
-import io.reactivex.rxjava3.functions.Predicate;
-import io.reactivex.rxjava3.schedulers.Schedulers;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.ResponseBody;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,39 +36,49 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final Task task = new Task("Walk the dog", false, 3);
 
+        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        try {
+            viewModel.makeFutureQuery().get()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<ResponseBody>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+                            Log.d(TAG, "onSubscribe: called.");
+                            disposable.add(d);
+                        }
 
-        Observable<Long>intervalObservable = Observable.timer(5, TimeUnit.SECONDS)
-                .subscribeOn(Schedulers.io())
-                .takeWhile(new Predicate<Long>() {
-                    @Override
-                    public boolean test(Long aLong) throws Throwable {
-                        return aLong<=5;
-                    }
-                })
-                .observeOn(AndroidSchedulers.mainThread());
+                        @Override
+                        public void onNext(ResponseBody responseBody) {
+                            Log.d(TAG, "onNext: got the response from server!");
+                            try {
+                                Log.d(TAG, "onNext: " + responseBody.string());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
 
+                        @Override
+                        public void onError(Throwable e) {
+                            Log.e(TAG, "onError: ", e);
+                        }
 
-        intervalObservable.subscribe(new Observer<Long>() {
+                        @Override
+                        public void onComplete() {
+                            Log.d(TAG, "onComplete: called.");
+                        }
+                    });
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        viewModel.makeReactiveQuery().observe(this, new androidx.lifecycle.Observer<ResponseBody>() {
             @Override
-            public void onSubscribe(@NonNull Disposable d) {
-                disposable.add(d);
-            }
-
-            @Override
-            public void onNext(@NonNull Long aLong) {
-                Log.d(TAG, "onNext: $aLong"+aLong);
-            }
-
-            @Override
-            public void onError(@NonNull Throwable e) {
-
-            }
-
-            @Override
-            public void onComplete() {
-
+            public void onChanged(ResponseBody responseBody) {
+                Log.d(TAG, "onChanged: Flowable"+responseBody.toString());
             }
         });
 
